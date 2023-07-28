@@ -7,23 +7,27 @@ const baseUrl = 'https://gateway.marvel.com/v1/public/';
 //arrays to store data
 let characters_array = [];
 
-
+//for hash genration
 function generateHash(ts) {
   const hash = CryptoJS.MD5(ts + privateKey + apiKey);
   return hash;
 }
 
+//for fetching charachters
 function fetchCharacters() {
   const ts = new Date().getTime().toString();
   const hash = generateHash(ts);
 
+  //url string is genrated
   const url = `${baseUrl}characters?apikey=${apiKey}&ts=${ts}&hash=${hash}`;
   console.log("API Request URL:", url);
 
+  //fetch from the url that has been genrated
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("API Response:", data);
+      //if there is data call display function
       displayCharacters(data);
     })
     .catch(error => {
@@ -32,6 +36,7 @@ function fetchCharacters() {
 }
 fetchCharacters();
 
+//for displaying charachters
 function displayCharacters(data) {
   characters_array = data.data.results;
   const charactersList = document.getElementById('characters-list');
@@ -40,6 +45,7 @@ function displayCharacters(data) {
   if (data && data.data && data.data.results) {
     const characters = data.data.results;
     characters.forEach(character => {
+      //for each charachter call create charachter card and pass the charachter as a parameter
       const characterCard = createCharacterCard(character);
       charactersList.appendChild(characterCard);
     });
@@ -47,6 +53,7 @@ function displayCharacters(data) {
     charactersList.textContent = 'Error fetching characters.';
   }
 }
+//create card for charachter
 function createCharacterCard(character) {
   const characterCardHTML = `
     <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
@@ -73,12 +80,11 @@ function createCharacterCard(character) {
   const removeFromFavButton = characterCard.querySelector(`#removeFromFavBtn_${character.id}`);
 
 
-
+  //check if charachter is in the fav 
   const isFavorite = localStorage.getItem('favorites')?.includes(character.id);
 
   // Show/hide the buttons based on favorites
   if (isFavorite) {
-
     addToFavButton.style.display = 'none';
     removeFromFavButton.style.display = 'inline-block';
   } else {
@@ -87,19 +93,22 @@ function createCharacterCard(character) {
   }
 
 
-  //functions for adding and removin
+  //functions for adding in fav
   addToFavButton.addEventListener('click', () => {
     //it assigns an empty string ('') to the variable favorites as default
     const favorites = localStorage.getItem('favorites') || '';
     localStorage.setItem('favorites', `${favorites},${character.id}`);
     addToFavButton.style.display = 'none';
+    //set display inline so that after adding the button to remove should appear
     removeFromFavButton.style.display = 'inline-block';
   });
 
+  //function for removing from fav
   removeFromFavButton.addEventListener('click', () => {
     const favorites = localStorage.getItem('favorites') || '';
     localStorage.setItem('favorites', favorites.replace(`,${character.id}`, ''));
     removeFromFavButton.style.display = 'none';
+    //set display inline so that after removing the button to add should appear
     addToFavButton.style.display = 'inline-block';
   });
 
@@ -107,17 +116,19 @@ function createCharacterCard(character) {
 }
 
 
-
+//for searching throgh the charachters
 function searchCharacters() {
   const searchInput = document.getElementById('search-input').value.toLowerCase();
   const charactersList = document.getElementById('characters-list');
-  charactersList.innerHTML = ''; // Clear the previous search results
+  //empty the div
+  charactersList.innerHTML = '';
 
   // Filter the characters based on the search input
   const filteredCharacters = characters_array.filter((character) =>
     character.name.toLowerCase().includes(searchInput)
   );
 
+  //if there are charachters
   if (filteredCharacters.length > 0) {
     filteredCharacters.forEach((character) => {
       const card = `
@@ -140,6 +151,7 @@ function searchCharacters() {
       charactersList.insertAdjacentHTML('beforeend', card);
     });
   } else {
+    //there are no charchters like that
     charactersList.innerHTML = 'No matching characters found.';
   }
 }

@@ -8,54 +8,58 @@ const baseUrl = 'https://gateway.marvel.com/v1/public/';
 //global var for storing charachter id that needs to be loaded
 var charachterIdLoad = '';
 window.onload = function () {
-    // Get the selected character ID from the localStorage
-    charachterIdLoad = localStorage.getItem('charId');
+  // Get the selected character ID from the localStorage
+  charachterIdLoad = localStorage.getItem('charId');
 };
 
 //arrays to store data
 let characters_array = [];
 function generateHash(ts) {
-    const hash = CryptoJS.MD5(ts + privateKey + apiKey);
-    return hash;
+  const hash = CryptoJS.MD5(ts + privateKey + apiKey);
+  return hash;
 }
 
+//fetch charachters
 function fetchCharacters() {
-    const ts = new Date().getTime().toString();
-    const hash = generateHash(ts);
+  const ts = new Date().getTime().toString();
+  const hash = generateHash(ts);
 
-    const url = `${baseUrl}characters?apikey=${apiKey}&ts=${ts}&hash=${hash}`;
-    console.log("API Request URL:", url);
+  const url = `${baseUrl}characters?apikey=${apiKey}&ts=${ts}&hash=${hash}`;
+  console.log("API Request URL:", url);
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            console.log("API Response:", data);
-            displayCharacters(data);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      console.log("API Response:", data);
+      displayCharacters(data);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
 }
 fetchCharacters();
 
+//display charachters
 function displayCharacters(data) {
-    characters_array = data.data.results;
-    const charactersList = document.getElementById('characters-list');
+  characters_array = data.data.results;
+  const charactersList = document.getElementById('characters-list');
 
-    // Check if the API request was successful
-    if (data && data.data && data.data.results) {
-        const characters = data.data.results;
-        characters.forEach(character => {
-            const characterCard = createCharacterCard(character);
-            charactersList.appendChild(characterCard);
-        });
-    } else {
-        charactersList.textContent = 'Error fetching characters.';
-    }
+  // Check if the API request was successful
+  if (data && data.data && data.data.results) {
+    const characters = data.data.results;
+    characters.forEach(character => {
+      const characterCard = createCharacterCard(character);
+      charactersList.appendChild(characterCard);
+    });
+  } else {
+    charactersList.textContent = 'Error fetching characters.';
+  }
 }
+
+//create card and add  them to the existing html
 function createCharacterCard(character) {
-    if (character.id == charachterIdLoad) {
-        const characterCardHTML = `
+  if (character.id == charachterIdLoad) {
+    const characterCardHTML = `
     <div class="col-12  mb-4">
   <div class="card h-100 custom-card">
     <div class="row no-gutters">
@@ -74,13 +78,13 @@ function createCharacterCard(character) {
   </div>
 </div>
   `;
-        // Convert the card HTML string to a DOM element
-        const characterCard = document.createRange().createContextualFragment(characterCardHTML);
-
-
-        return characterCard;
-    } else {
-        const characterCard = document.createRange().createContextualFragment('');
-        return characterCard;
-    }
+    // Convert the card HTML string to a DOM element
+    const characterCard = document.createRange().createContextualFragment(characterCardHTML);
+    return characterCard;
+  } else {
+    //in case there is no charachter id and user goes directly to that page
+    const characterCardHTML = `<h1>Failed to load Character</h1>`;
+    const characterCard = document.createRange().createContextualFragment(characterCardHTML);
+    return characterCard;
+  }
 }

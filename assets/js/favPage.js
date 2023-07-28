@@ -7,57 +7,61 @@ const baseUrl = 'https://gateway.marvel.com/v1/public/';
 //arrays to store data
 let characters_array = [];
 function generateHash(ts) {
-    const hash = CryptoJS.MD5(ts + privateKey + apiKey);
-    return hash;
+  const hash = CryptoJS.MD5(ts + privateKey + apiKey);
+  return hash;
 }
 
+//fetch charchters
 function fetchCharacters() {
-    const ts = new Date().getTime().toString();
-    const hash = generateHash(ts);
+  const ts = new Date().getTime().toString();
+  const hash = generateHash(ts);
 
-    const url = `${baseUrl}characters?apikey=${apiKey}&ts=${ts}&hash=${hash}`;
-    console.log("API Request URL:", url);
+  const url = `${baseUrl}characters?apikey=${apiKey}&ts=${ts}&hash=${hash}`;
+  console.log("API Request URL:", url);
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            console.log("API Response:", data);
-            characters_array = data.data.results;
-            displayCharacters(characters_array);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-}
-fetchCharacters();
-
-function displayCharacters(characters) {
-    const favorites = localStorage.getItem('favorites') || '';
-    const favoritesArray = favorites.split(',');
-
-    const charactersList = document.getElementById('characters-list');
-    charactersList.innerHTML = ''; // Clear previous content
-
-    // Check if the characters array is empty
-    if (characters.length === 0) {
-        charactersList.textContent = 'No characters available.';
-        return;
-    }
-
-    characters.forEach(character => {
-        // Check if the character ID is present in the favorites array
-        const isFavorite = favoritesArray.includes(character.id.toString());
-
-        // If it's a favorite or no favorites are set, display the character card
-        if (favoritesArray.length === 0 || isFavorite) {
-            const characterCard = createCharacterCard(character, isFavorite);
-            charactersList.appendChild(characterCard);
-        }
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      console.log("API Response:", data);
+      characters_array = data.data.results;
+      displayCharacters(characters_array);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
     });
 }
 
+fetchCharacters();
+
+//display fetched charachters
+function displayCharacters(characters) {
+  const favorites = localStorage.getItem('favorites') || '';
+  const favoritesArray = favorites.split(',');
+
+  const charactersList = document.getElementById('characters-list');
+  charactersList.innerHTML = ''; // Clear previous content
+
+  // Check if the characters array is empty
+  if (characters.length === 0) {
+    charactersList.textContent = 'No characters available.';
+    return;
+  }
+
+  characters.forEach(character => {
+    // Check if the character ID is present in the favorites array
+    const isFavorite = favoritesArray.includes(character.id.toString());
+
+    // If it's a favorite or no favorites are set, display the character card
+    if (favoritesArray.length === 0 || isFavorite) {
+      const characterCard = createCharacterCard(character, isFavorite);
+      charactersList.appendChild(characterCard);
+    }
+  });
+}
+
+//create card and add in the existing html
 function createCharacterCard(character, isFavorite) {
-    const characterCardHTML = `
+  const characterCardHTML = `
     <div class="col-12  mb-4">
       <div class="card h-100 custom-card">
         <div class="row no-gutters">
@@ -77,8 +81,8 @@ function createCharacterCard(character, isFavorite) {
     </div>
   `;
 
-    // Convert the card HTML string to a DOM element
-    const characterCard = document.createRange().createContextualFragment(characterCardHTML);
+  // Convert the card HTML string to a DOM element
+  const characterCard = document.createRange().createContextualFragment(characterCardHTML);
 
-    return characterCard;
+  return characterCard;
 }
