@@ -82,9 +82,7 @@ function createCharacterCard(character) {
     const characterCard = document.createRange().createContextualFragment(characterCardHTML);
     return characterCard;
   } else {
-    //in case there is no charachter id and user goes directly to that page
-    const characterCardHTML = `<h1>Failed to load Character</h1>`;
-    const characterCard = document.createRange().createContextualFragment(characterCardHTML);
+    const characterCard = document.createRange().createContextualFragment('');
     return characterCard;
   }
 }
